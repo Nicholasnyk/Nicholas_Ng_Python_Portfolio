@@ -1,0 +1,131 @@
+import csv
+import random
+
+#OPEN/CLOSE THE FILE AND CONVERT TO A LIST OF DICTIONARIES CONTAINING THE COUNTRIES AND THE LAT/LONG
+file_handle = open('C:\\Users\\Nicholas\\Desktop\\countries.csv')
+reader = csv.DictReader(file_handle)
+countries =list(reader)
+
+file_handle.close()
+list_country = []
+
+#1 CREATE SOME FUNCTIONS
+
+def direction_tip(lat, long):
+    print(f"The country is {lat} {long} from your guess")
+
+def add_tip(lat,long,degree_lat,degree_long):
+    print(f"Country is {degree_lat:.2f} {lat} and {degree_long:.2f} {long} from your guess")
+
+#MAKE GAME A FUNCTION FOR RECURSION
+
+def game():
+# 3 ASK USER FOR THEIR NAME
+    name = input(f"Username: ")
+
+# IF WE WANT IT TO HAVE A BLANK SLATE EVERYTIME THE GAME STARTS/RESTARTS THEN INSTEAD OF USING 'a' USE 'w' IN THE ARGUMENT FOR open()
+    with open('C:\\Users\\Nicholas\\Desktop\\log.txt', 'a') as writer1:
+        writer1.write('==============================' + '\n' + "Guesser Name: " + name + '\n' + "Guess" + "," + "Outcome" + '\n')
+        writer1.close
+
+#CREATE A LIST OF COUNTRIES AVAILABLE FOR USER REFERENCE
+    for _ in range (len(countries)):
+        position_country = countries[_]
+        specific_country = position_country['country'].casefold()
+        list_country.append(specific_country)
+
+    print(list_country)
+
+
+    random_country = random.choice(countries)
+    memory = []
+    list_outcome = []
+    guess= ""
+    attempt = 0
+#   print(random_country['country'])
+
+#WHILE GUESS IS NOT EQUAL TO RANDOM COUNTRY AND LESS THAN 10 ATTEMPT, KEEP ON ASKING FOR INPUT/GUESS
+    while guess != random_country["country"] and attempt  < 10:
+        guess = input(f"Choose a country:")
+
+#SAVE ALREADY GUESSED ITEM INTO A LIST TO PREVENT USER FROM LOSING ATTEMPTS UPON GUESSING SAME COUNTRY
+        if guess not in memory:
+            memory.append(guess)
+            if guess.casefold() == random_country["country"].casefold():
+                attempt += 1
+                print("Congratulations you guessed right!")
+                outcome = "Won"
+
+#4 CHECK IF GUESS IS VALID
+            elif guess.casefold() not in list_country:
+                print(f"Sorry invalid guess, try again")
+                outcome = "Invalid"
+
+
+            elif guess.casefold() != random_country['country'].casefold():
+                attempt += 1
+                if attempt >= 10:
+                    print(f"Sorry you lost, the country is {random_country['country']}")
+                    outcome = "Lost"
+
+
+                else:
+                    if attempt < 8:
+                        print(f"Sorry, wrong country, try again you have {10 - attempt} more attempt")
+                        outcome = "Try Again"
+                    elif attempt >= 8:
+                        print(f"Sorry, wrong country, try again with a hint, you have {10 - attempt} more attempt")
+                        outcome = "Try Again"
+
+#2 USING FLOAT, ENSURED THAT THE POLARITY OF THE COUNTRY COMPARED TO THE GUESS IS CORRECT
+                for country in countries:
+                    if guess.casefold() == country['country'].casefold():
+
+                        if float(random_country['lat']) > float(country['lat']):
+                            direction_lat = "North"
+                        else:
+                            direction_lat = "South"
+
+                        if float(random_country['long']) > float(country['long']):
+                            direction_long = "East"
+                        else:
+                            direction_long = "West"
+
+                        if attempt < 8:
+
+#CALL FUNCTION TO TIP USER INTO RIGHT DIRECTION
+                            direction_tip(lat=direction_lat, long=direction_long)
+
+                        if attempt >= 8:
+                            if float(random_country['lat']) > float(country['lat']):
+                                difference_lat = float(random_country['lat']) - float(country['lat'])
+
+                            else:
+                                difference_lat = float(country['lat']) - float(random_country['lat'])
+
+                            if float(random_country['long']) > float(country['long']):
+                                difference_long = float(random_country['long']) - float(country['long'])
+
+                            else:
+                                difference_long = float(country['long']) - float(random_country['long'])
+#GIVE USER ADDITIONAL TIP UPON LAST FEW ATTEMPTS
+                            if attempt < 10:
+                                add_tip(lat=direction_lat,long=direction_long,degree_lat=difference_lat,degree_long=difference_long)
+
+        else:
+            print(f"Already guessed answer")
+            outcome = "Already Guessed"
+        save =  guess + ',' +  outcome
+        print(save)
+        with open('C:\\Users\\Nicholas\\Desktop\\log.txt', 'a') as writer2:
+            writer2.write(save + '\n')
+        writer2.close
+
+while True:
+    continue_game = input(f"Start a new game? Y or N : ")
+    if continue_game == "Y".upper():
+        game()
+    elif continue_game == "N".upper():
+        break
+    else:
+        print(f"I don't understand")
