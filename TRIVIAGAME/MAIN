@@ -1,0 +1,161 @@
+READ ME: TRIVIA GAME THAT USES A URL TO GRAB TRIVIA QUESTIONS FROM A WEBSITE. ALLOWS THE USER TO SELECT CATEGORIES AND NUMBER OF QUESTIONS. TRACKS SCORE DURING AND AT THE END OF THE GAME. 
+ATTENTION: THIS IS A PERSONAL PROJECT THAT HELPED ME PRACTICE OOP AND SEGMENTING PROCESSES IN DIFFERENT MODULES AND FUNCTIONS. THIS COULD HAVE BEEN DONE CODED EASIER BY TAPPING INTO THE JSON MODULE BUT WOULD'VE BEEN OUTSIDE THE SCOPE I SET MYSELF
+IMPORTANT: PLEASE NOTE THAT THE MODULES FOR 'reportmodule_nyk' and 'Anschecker_nyk' NEED TO BE MODIFIED ACCORDINGLY DEPENDING ON HOW YOU WISH TO SAVE IT.
+
+import string
+import urllib.request
+import os
+from reportmodule_nyk import Report
+from Anschecker_nyk import GetQuestion
+import random
+import time
+import sys
+
+def countdown(timer):
+    for number in range(timer):
+        if number == 0:
+            start_display = f"Game starting in {timer-number}"
+            for letter in start_display:
+                sys.stdout.write(letter)
+                sys.stdout.flush()
+                time.sleep(.1)
+            os.system('cls')
+        else:
+            start_display = f"......{timer-number}"
+            for letter in start_display:
+                sys.stdout.write(letter)
+                sys.stdout.flush()
+                time.sleep(1/7)
+            os.system('cls')
+
+
+def parse(searchstring, leader, trailer):
+    try:
+        end_of_leader = searchstring.index(leader) + len(leader) # LOOKS FOR THE INDEX AT THE END OF THE LEADER (yp_searchTotalPages)
+        start_of_trailer = searchstring.index(trailer, end_of_leader) # LOOKS FOR THE INDEX OF THE trailer(",) AFTER THE end of leader INDEX
+        return searchstring[end_of_leader:start_of_trailer] # RETURNS A STRING EXCLUDING THE LEADER AND STOPS AT THE START OF TRAILER
+    except ValueError:  # Catch if either delimiter is not found in the string
+        return ""
+
+game_continue = True
+
+while game_continue:
+    os.system('cls')
+    username = input(f"What is your username?:\n")
+    os.system('cls')
+    urlreport = f"https://opentdb.com/api_config.php"
+
+    category_choice = -1
+    category_url = ''
+    list_category = Report(urlreport)
+    categories = list_category.get_category()
+
+    while category_choice < 0 or category_choice > list_category.len_category-1:
+        category_choice = int(input(f"Choose a category and return the value as an integer from 0 to {list_category.len_category - 1}:\n"))
+        os.system('cls')
+    if category_choice == 0:
+        category_url = ''
+
+    else:
+        category_url = f"&category={list_category.dict_cat[category_choice]}"
+
+    difficulty_choice = ''
+    difficulty_url = ''
+    list_difficulty = Report(urlreport)
+    difficulties =list_difficulty.get_difficulty()
+    while difficulty_choice not in list_difficulty.list_dif:
+        difficulty_choice = input(f"Choose a difficulty from {list_difficulty.list_dif}:\n")
+        os.system('cls')
+    if difficulty_choice == 'Any Difficulty':
+            difficulty_url = ''
+
+    else:
+        difficulty_url = f"&difficulty={difficulties[difficulty_choice]}"
+
+
+    type_choice = ''
+    type_url = ''
+    list_type = Report(urlreport)
+    types = list_type.get_type()
+    while type_choice not in list_type.list_typ_int:
+        type_choice = input(f"Choose game type from {list_type.list_typ} as an integer between 1 and {list_type.len_typ}:\n")
+        os.system('cls')
+    if type_choice.isnumeric():
+        if type_choice == '1':
+            type_url = ''
+        else:
+            type_choice = list_type.list_typ[int(type_choice)-1]
+            type_url =f"&type={types[type_choice]}"
+    else:
+        type_url = f"&type={types[type_choice]}"
+
+    number_choice = 0
+    while number_choice <1 or number_choice >50:
+        number_choice = int(input(f"Choose number of questions(maximum of 50):\n"))
+        os.system('cls')
+
+    urlgame = f"https://opentdb.com/api.php?amount={str(number_choice)}{category_url}{difficulty_url}{type_url}"
+    #print(urlgame)
+
+    game_reader = urllib.request.urlopen(urlgame)
+    raw_data = game_reader.read().decode()
+
+    game_data = raw_data[raw_data.index('{"response_code":0,"results":') + len('{"response_code":0,"results":'):]
+    #print(game_data)
+    split_game_data = game_data.split("}")
+    print(split_game_data)
+    total_question = 0
+    maximum_points = 0
+    score = 0
+    correct = 0
+    question_number = 0
+
+    countdown(3)
+
+    for game in split_game_data:
+        cleaned_raw = game.replace('&ldquo;','"').replace('&rdquo;','"').replace('&rsquo;',"'").replace('&lsquo;',"'").replace("&#039;","'").replace('&quot;','"').replace('&hellip;','...')
+        game_type = parse(game,'"type":"','",')
+        #print(game_type)
+        game_difficulty = parse(game,',"difficulty":"','",')
+        #print(game_difficulty)
+        game_question = parse(cleaned_raw,',"question":"','",')
+        #cleaned_game_question= game_question.replace("&#039;","'").replace('&quot;','"')
+        correct_answer = parse(cleaned_raw,'"correct_answer":"','",')
+        #print(correct_answer)
+        username = GetQuestion(game_question, correct_answer,score,maximum_points,correct,total_question,game_difficulty,question_number,number_choice)
+
+        if game_type == "multiple":
+            incorrect_answer = parse(cleaned_raw,',"incorrect_answers":["','"]')
+            mcq = incorrect_answer.split('","')
+            mcq.append(correct_answer)
+            random.shuffle(mcq)
+            username.check_mcq(mcq)
+            score = username.score
+            maximum_points = username.maximum_points
+            correct = username.correct
+            total_question = username.total_question
+            question_number = username.question_number
+
+
+        if game_type == "boolean":
+            username.check_boolean()
+            score = username.score
+            maximum_points = username.maximum_points
+            correct = username.correct
+            total_question = username.total_question
+            question_number = username.question_number
+
+        if total_question != number_choice:
+            time.sleep(1)
+            os.system('cls')
+        if total_question == number_choice:
+            play_again = input(f"Would you like to play again?: Y or N\n").upper()
+            if play_again == "Y":
+                game_continue = True
+                break
+            elif play_again == "N":
+                game_continue = False
+                break
+
+
+
