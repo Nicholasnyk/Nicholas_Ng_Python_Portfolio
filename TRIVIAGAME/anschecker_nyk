@@ -1,0 +1,107 @@
+# READ ME: THIS MODULE CHECKS THE ANSWER IF IT IS GOOD OR NOT AND ALLOCATES POINTS DEPENDING ON DIFFICULTY
+# IMPORTANT: THIS MODULE IS ORIGINALLY CALLED 'Anschecker_nyk'. ANY CHANGES TO THE NAME OF THIS MODULE NEED TO BE REFLECTED IN THE MAIN MODULE
+
+import string
+import os
+
+class GetQuestion:
+    def __init__(self,text,answer,score,maximum_points,correct,total_question, difficulty,question_number,maximum_question):
+        self.text = text
+        self.answer = answer
+        self.score = score
+        self.maximum_points = maximum_points
+        self.correct = correct
+        self.total_question = total_question
+        self.difficulty = difficulty
+        self.question_number = question_number
+        self.maximum_question = maximum_question
+
+    def check_boolean(self):
+    #   choice = ''
+        true_false = "False"
+        while true_false == "False":
+            print(self.text)
+            choice = input(f"True or False?").title()
+            os.system('cls')
+            if choice == "True":
+                break
+            if choice == "False":
+                break
+        self.question_number += 1
+        self.total_question += 1
+        if choice.lower() == self.answer.lower():
+            self.correct += 1
+            if self.difficulty == "easy":
+                self.score += 1
+                self.maximum_points += 1
+            if self.difficulty == "medium":
+                self.score += 2
+                self.maximum_points += 2
+            if self.difficulty == "hard":
+                self.score += 3
+                self.maximum_points += 3
+            if self.question_number < self.maximum_question:
+                print(f"You guessed right! Your score is {self.score}/{self.maximum_points}. You got {self.correct}/{self.total_question} correct answers")
+            if self.question_number == self.maximum_question:
+                print(f"You guessed right! Your final score is {self.score}/{self.maximum_points}; You got {self.correct}/{self.total_question} correct answers")
+
+        else:
+            if self.difficulty == "easy":
+                self.maximum_points += 1
+            if self.difficulty == "medium":
+                self.maximum_points += 2
+            if self.difficulty == "hard":
+                self.maximum_points += 3
+            if self.question_number < self.maximum_question:
+                print(f"You guessed wrong! Your score is {self.score}/{self.maximum_points}. You got {self.correct}/{self.total_question} correct answers")
+            if self.question_number == self.maximum_question:
+                print(f"You guessed wrong! Your final score is {self.score}/{self.maximum_points}; You got {self.correct}/{self.total_question} correct answers")
+
+    def check_mcq(self,mcq):
+        choice = ''
+        list_answer = []
+        dict_answer = {}
+        for position_letter, name in enumerate(mcq):
+            dict_answer[name] = string.ascii_uppercase[position_letter]
+            list_answer.append(string.ascii_uppercase[position_letter])
+        while choice not in list_answer:
+            print(self.text)
+            for position_letter, name in enumerate(mcq):
+                print(f"{string.ascii_uppercase[position_letter]}) {name}")
+            choice = input(f"Choose an answer from {list_answer}:\n").upper()
+            os.system('cls')
+
+        self.total_question += 1
+        self.question_number += 1
+        if choice == dict_answer[self.answer]:
+            self.correct += 1
+            if self.difficulty == "easy":
+                self.score += 1
+                self.maximum_points += 1
+            if self.difficulty == "medium":
+                self.score += 2
+                self.maximum_points += 2
+            if self.difficulty == "hard":
+                self.score += 3
+                self.maximum_points += 3
+            if self.question_number < self.maximum_question:
+                print(f"You guessed right! Your score is {self.score}/{self.maximum_points}. You got {self.correct}/{self.total_question} correct answers")
+            if self.question_number == self.maximum_question:
+                print(f"You guessed right! Your final score is {self.score}/{self.maximum_points}; You got {self.correct}/{self.total_question} correct answers")
+
+        else:
+            if self.difficulty == "easy":
+                self.maximum_points += 1
+            if self.difficulty == "medium":
+                self.maximum_points += 2
+            if self.difficulty == "hard":
+                self.maximum_points += 3
+            if self.question_number < self.maximum_question:
+                print(f"You guessed wrong! Your score is {self.score}/{self.maximum_points}. You got {self.correct}/{self.total_question} correct answers")
+            if self.question_number == self.maximum_question:
+                print(f"You guessed wrong! Your final score is {self.score}/{self.maximum_points}; You got {self.correct}/{self.total_question} correct answers")
+
+
+
+
+
