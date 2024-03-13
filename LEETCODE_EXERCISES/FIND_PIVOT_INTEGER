@@ -1,0 +1,27 @@
+READ ME: THIS IS A SCRIPT THAT LOOKS FOR A PIVOT INTEGER. THE PIVOT NUMBER X IS AN INTEGER BETWEEN 0 AND N(N>0). THE SUM OF 1,2,3,...,X MUST BE EQUAL TO THE SUM OF X,X+1,X+2,N
+IMPORTANT: MODIFY n VALUE BELOW TO CHECK FOR RESPECTIVE PIVOT INTEGER. IF NO PIVOT INTEGER WHICH MEANS SUMS OF NUMBERS DONT EQUATE WITH EACH OTHER THEN RETURNS -1 VALUE
+
+n = 8
+# x < n
+
+
+for integer in range(n+1):
+    total1 = 0
+    total2 = 0
+    x = n - integer
+
+    for add1 in range(n-x+1):
+        total1 += x + add1
+
+    for add1 in range(x):
+        total2 += 1 + add1
+
+
+    if total1 == total2:
+        print(x)
+        break
+    else:
+        pass
+
+if total1 != total2:
+    print(-1)
