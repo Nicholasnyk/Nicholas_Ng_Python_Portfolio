@@ -1,0 +1,25 @@
+# READ ME: THIS IS A SCRIPT THAT RETURNS THE INDEX OF TWO NUMBERS WITHIN A LIST THAT WHEN COMBINED TOGETHERS RETURN THE TARGET NUMBER. THIS CAN BE MODIFIED TO ACCEPT MORE DIGITS IN THE SUMMATION
+# ATTENTION: TO MAKE IT WORK SIMPLY CALL THE FUNCTION 'twoSum' ALONG WITH ITS FIRST ARGUMENT : A LIST OF NUMBERS AND SECOND ARGUMENT: A TARGET NUMBER. EXAMPLE twoSum(arg1:list,arg2:target_num)
+# IMPORTANT: NUMBERS IN THE LIST ARE CONSIDERED SINGLE INSTANCES AND ARE PROGRAMMED NOT TO BE ADDED WITH THEMSELVES. EXAMPLE [1,3,4,5] TARGET NUMBER = 2 WILL RETURN NO INDEX AS 1 IN INDEX 0 CAN'T BE ADDED WITH ITSELF
+
+def twoSum(list,target_num):
+    list_outcomes = []
+    for index1 in range(len(list)):
+        number1 = list[index1]
+        for index2 in range(len(list)):
+            if index1 == index2:
+                pass
+            else:
+                number2 = list[index2]
+                sum = number1 + number2
+                if sum == target_num:
+                    first_number = list.index(number1)
+                    second_number = list.index(number2)
+
+                    output = [first_number, second_number]
+                    if first_number < second_number:
+                        list_outcomes.append(output)
+    print(list_outcomes)
+
+# EXAMPLE1: twoSum([1,3,4,8,2],5)
+# EXAMPLE2: twoSum([1,6,9,11,60,22,32,42],43)
