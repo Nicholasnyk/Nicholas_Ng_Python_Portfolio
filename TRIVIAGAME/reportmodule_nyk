@@ -1,0 +1,77 @@
+import urllib.request
+def parse(searchstring, leader, trailer):
+    try:
+        end_of_leader = searchstring.index(leader) + len(leader) # LOOKS FOR THE INDEX AT THE END OF THE LEADER (yp_searchTotalPages)
+        start_of_trailer = searchstring.index(trailer, end_of_leader) # LOOKS FOR THE INDEX OF THE trailer(",) AFTER THE end of leader INDEX
+        return searchstring[end_of_leader:start_of_trailer] # RETURNS A STRING EXCLUDING THE LEADER AND STOPS AT THE START OF TRAILER
+    except ValueError:  # Catch if either delimiter is not found in the string
+        return ""
+
+class Report:
+    def __init__(self,urlreport):
+        self.urlreport= urlreport
+
+    def get_category(self):
+        fileobj = urllib.request.urlopen(self.urlreport)
+        s = fileobj.read().decode()
+        parsed_category = parse(s,'select name="trivia_category" class="form-control"','<label for="trivia_difficulty">')
+        category_split = parsed_category.split('<option')
+        dict_category = {}
+        dict_category_format = {}
+        integer_cat = 0
+        for string in category_split[1:]:
+            category_name = parse(string,'">','<')
+            category_int = parse(string,' value="','">')
+            dict_category[category_name] = category_int
+            dict_category_format[integer_cat] = category_int
+            print(f"{category_name}: {(integer_cat)}")
+            integer_cat += 1
+            #print(dict_category)
+        self.len_category = len(dict_category_format)
+        self.dict_cat = dict_category_format
+        #return dict_category_format
+
+    def get_difficulty(self):
+        fileobj = urllib.request.urlopen(self.urlreport)
+        s = fileobj.read().decode()
+        parsed_difficulty = parse(s,'select name="trivia_difficulty" class="form-control"','label for="trivia_type"')
+        difficulty_split = parsed_difficulty.split('/option>\n\t\t\t')
+        difficulty_list = []
+        difficulty_list_int = []
+        dict_difficulty = {}
+        for string in difficulty_split:
+            difficulty_value = parse(string, 'option value="', '">')
+            difficulty_name = parse(string, f'"{difficulty_value}">','<')
+            dict_difficulty[difficulty_name] = difficulty_value
+            difficulty_list.append(difficulty_name)
+        for numeric in range(1,len(difficulty_list)+1):
+            difficulty_list_int.append(str(numeric))
+        self.list_dif_int = difficulty_list_int
+        self.list_dif = difficulty_list
+        self.len_dif = len(difficulty_list)
+        #print(difficulty_list)
+        return dict_difficulty
+
+    def get_type(self):
+        fileobj = urllib.request.urlopen(self.urlreport)
+        s = fileobj.read().decode()
+        parsed_type = parse(s,'<select name="trivia_type"','<label for="trivia_encode">')
+        type_split = parsed_type.split('<option')
+        type_list = []
+        type_list_int = []
+        dict_type = {}
+        for string in type_split[1:]:
+            type_value = parse(string,'value="','">')
+            type_name = parse(string,f'{type_value}">','</option')
+            dict_type[type_name] = type_value
+            type_list.append(type_name)
+        for numeric in range(1,len(type_list)+1):
+            type_list_int.append(str(numeric))
+        self.list_typ_int = type_list_int
+        self.list_typ = type_list
+        self.len_typ = len(type_list)
+        return dict_type
+
+
+
+
