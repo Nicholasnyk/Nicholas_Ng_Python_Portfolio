@@ -1,0 +1,115 @@
+# PROJECT: TORONTO POLICE SERVICES GDB ON TORONTO ACCIDENTS.
+# READ ME: THIS SCRIPT LOOPS THROUGH ALL THE FEATURE CLASS WITHIN THE GDB THAT CONTAINS SPECIFIED FIELD NAMES. IT ADDS NEW COLUMS AND CLEAN UPS/REFORMAT EXISTING ONES. LEVERAGES THE ARCPY FUNCTIONS FOR SPECIFIC OPERATIONS. RUNS IN ARCGISPRO
+# IMPORTANT: THIS SCRIPT ONLY SUPPORTS GDBs WITH FEATURE CLASS THAT REQUIRES SPECIFIED CLEANUPS. CHANGE THE DIRECTORY IN THE ARCPY.ENV.WORKSPACE ACCORDINGLY. RUN THROUGH ARCGIS PRO
+
+# IMPORTS
+import arcpy
+import re
+import datetime
+
+# SETTING UP THE WORKSPACE
+
+arcpy.env.workspace = "C:\\Users\\nicho\\Desktop\\Toronto_Accidents.gdb" # TO CHANGE DIRECTORY
+
+# SETTING UP THE CONSTANTS. LISTS WILL BE USED FOR REPLACE AND RE.SUB FUNCTIONS
+
+REMOVELIST = ["Scarborough", "York", "North York", "East York", "Etobicoke", "Toronto City", "City of Toronto"]
+REPLACEMENTS = [(" Gt ", " Gate "), (" Dr ", " Drive "), (" Rd ", " Road "), (" Ave ", " Avenue "),
+                (" St ", " Street "), (" Sq ", " Square "), (" Trl ", " Trail "), (" Cres ", " Crescent "),
+                (" E ", " East "), (" W ", " West "), (" N ", " North "), (" S ", " South "), (" Crcl ", " Circle "),
+                (" Crt ", " Court "), (" Blvd ", " Boulevard "), (" Ln ", " Lane "), (" Pl ", " Place ")]
+DELETE_LIST = ["Shape_Leng", "Shape__Are", "Shape__Len"]  # DELETE LIST FOR FUTURE DATAMANAGEMENT PROCESS
+# ABBREVIATIONS ARE FORMATTED TO HAVE A LEADING AND TRAILING BLANK TO ENSURE THEY DONT FORM PART OF ANOTHER WORD. REPLACEMENT STRING ALSO CONTAIN LEADING AND TRAILING BLANK TO ENSURE PROPER SPACING BETWEEN WORDS
+
+# SET FEATURE CLASS LIST
+
+fcList = []
+
+for fc in arcpy.ListFeatureClasses():  # ITERATES THROUGH THE FEATURE CLASS WITHIN THE GDP AND APPENDS IT TO A LIST
+    fcList.append(fc)
+
+# ARCGIS FUNCTIONS TO CREATE NEW FIELDS
+
+for featureclass in fcList:
+    arcpy.management.AddField(featureclass, "TPS_EDITED", "Date")
+    arcpy.management.AddField(featureclass, "TPS_CHECK_ID", "Long")
+    arcpy.management.AddField(featureclass, "Time_leading_zero", "Text")
+
+    # SET FIELD LIST
+
+    field_list = []
+    for field in arcpy.ListFields(
+            featureclass):  # ITERATES THROUGH EACH FEATURE CLASS AND APPENDS THE FIELD.NAME IN A LIST
+        field_list.append(field.name)
+    tot_rows = arcpy.management.GetCount(featureclass)
+    print(
+        f"Iterating through {tot_rows} rows in {featureclass} attribute table ")  # LET THE USER KNOW ABOUT THE TOTAL NUMBER OF ROWS IN THE ATTRIBUTE TABLE FOR SPECIFIC FEATURE CLASS
+    # USE OF CURSOR TO UPDATE ROWS
+
+    attr_list = ["TPS_CHECK_ID", "TPS_EDITED",
+                 "Time_leading_zero"]  # CREATES A LIST OF COLUMNS THAT WILL BE UPDATED USING THE CURSOR. THE LIST IS POPULATED BASED ON WHICH FIELD IS AVAILABLE OR NOT IN EACH FEATURE CLASS.
+    if "POSTAL" in field_list:
+        attr_list.append("POSTAL")  # APPENDS VALUE IF VALUE IS IN FIELD LIST.
+    if "CITY" in field_list:
+        attr_list.append("CITY")
+    if "Intersection_Name" in field_list:
+        attr_list.append("Intersection_Name")
+    if "Issued_Time" in field_list:
+        attr_list.append("Issued_Time")
+    with arcpy.da.UpdateCursor(featureclass, attr_list) as cursor:
+        number = 0  # WILL BE USED FOR TPS_CHECK_ID
+        for row in cursor:
+            if "POSTAL" in field_list:
+                if len(row[attr_list.index(
+                        "POSTAL")]) > 6:  # USE OF INDEX TO MAKE THE SCRIPT MORE DYNAMIC INSTEAD OF USING INTEGERS. THIS WAY IF THE SCRIPT ALWAYS KNOWS WHICH COLUMN BELONG TO WHICH ROW[#]
+                    row[attr_list.index("POSTAL")] = row[attr_list.index("POSTAL")].replace(" ", "").replace("-",
+                                                                                                             "")  # CHECKS IF THE STRING IN POSTAL CODE IS MORE THAN 6. IF IT IS THEN THE REPLACE FUNCTION LOOKS FOR BLANKS " " AND "-" AND REPLACES THEM WITH NO SPACE ""
+            if "CITY" in field_list:
+                if row[attr_list.index(
+                        "CITY")] in REMOVELIST:  # CHECKS IF THE VALUE IN CITY COLUMN IS IN THE LIST OF CITY TO REMOVE AND REPLACE BY "TORONTO"
+                    row[attr_list.index("CITY")] = row[attr_list.index("CITY")].replace(row[attr_list.index("CITY")],
+                                                                                        "Toronto")
+            if "Intersection_Name" in field_list:
+                if type(row[attr_list.index(
+                        "Intersection_Name")]) == str:  # CHECKS FOR THE TYPE TO PREVENT ERROR WHEN GOING THROUGH NULL VALUES
+                    row[attr_list.index("Intersection_Name")] = row[attr_list.index(
+                        "Intersection_Name")] + " "  # ADDS A TRAILING BLANK SPACE AT THE END OTHERWISE THE REPLACING WILL BE OMITTED FOR ENDING ABBREVIATION AS THE REMOVE ARGUMENT LOOKS FOR A TRAILING BLANK SPACE WHICH IS MISSING AT THE END OF THE STRING. EXAMPLE "AVENUE ST" OMITTED BECAUSE " ST" != " ST ". "AVENUE ST " ON THE OTHER HAND GETS FORMATTED
+                    for removed, replaced in REPLACEMENTS:  # ITERATES THROUGH THE REPLACEMENTS LIST AND REMOVES AND REPLACES EVERY INSTANCES OF ABBREVIATION IN THE DESIGNATED FIELD
+                        row[attr_list.index("Intersection_Name")] = re.sub(removed, replaced,
+                                                                           row[attr_list.index("Intersection_Name")])
+                    row[attr_list.index("Intersection_Name")] = row[attr_list.index(
+                        "Intersection_Name")].rstrip()  # STRIPS THE TRAILING BLANK SPACE AT THE RIGHT OF THE STRING AFTER IT HAS BEEN FORMATTED
+            if "Issued_Time" in field_list:
+                if len(str(row[attr_list.index(
+                        "Issued_Time")])) < 4:  # CHECKS IF ISSUED_TIME IS OF LENGTH LESS THAN 4. IF IT IS IT GETS A LEADING ZERO AT THE START OF THE STRING
+                    row[attr_list.index("Time_leading_zero")] = "0" + str(row[attr_list.index("Issued_Time")])
+                if len(str(row[attr_list.index(
+                        "Issued_Time")])) == 4:  # IF STRING LENGTH IS 4 THEN NEW FIELD TAKES THE VALUE OF ISSUED_TIME
+                    row[attr_list.index("Time_leading_zero")] = row[attr_list.index("Issued_Time")]
+
+            number += 1  # TRACKS THE TPS_CHECKED_ID
+            row[attr_list.index("TPS_CHECK_ID")] = number
+
+            row[attr_list.index(
+                "TPS_EDITED")] = datetime.datetime.today()  # POPULATES THE TPS_EDITED FIELD WITH DATE AND TIME OF RUNNING THE SCRIPT
+
+            cursor.updateRow(row)
+        print("Rows updated")  # LET THE USER KNOW ONCE THE ROWS HAVE BEEN UPDATED
+
+        # ARCGIS FUNCTIONS TO POPULATE DATE/TIME FIELD AND REMOVE REDUNDANT FIELDS OR FIELDS THAT ARE NO LONGER NEEDED AND ALSO PRINT SOME STATEMENTS TO LET THE USER KNOW ABOUT THE PROGRESS
+
+        if "Issued_Time" in field_list:
+            arcpy.management.ConvertTimeField(featureclass, "Time_leading_zero", "HHm", "Formatted_Time", "Text",
+                                              "H:mm")
+            print("Time formatted to HH:mm")
+        if "Issued_Date" in field_list:
+            arcpy.management.ConvertTimeField(featureclass, "Issued_Date", "yyyyMMdd", "Formatted_Date", "Text",
+                                              "dd/MM/yyyy")  # yyyy-MM-dd according to some research yyyy-MM-dd is a correct format already
+            print("Time formatted to dd/MM/yyyy")
+        to_delete = ["Time_leading_zero"]
+        for item in DELETE_LIST:
+            if item in field_list:
+                to_delete.append(item)
+        arcpy.management.DeleteField(featureclass,to_delete)  # REMOVES THE CREATED TIME_LEADING_ZERO AS IT IS NO LONGER NEEDED
+        print(f"{to_delete} removed")
+        print(f"'{featureclass}' Progress : Complete")  # LET THE USER KNOW THAT THE SCRIPT HAS RUN ITS COURSE
