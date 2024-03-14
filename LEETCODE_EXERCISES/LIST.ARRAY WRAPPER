@@ -1,0 +1,40 @@
+# READ ME: THE ARRAY WRAPPER IS A CLASS THAT ACCEPTS A LIST OF NUMBERS OR STRINGS WITH FUNCTIONS SUCH AS ADD AND CONVERT TO STRING. IT ADDS OR CONVERTS THE LIST ACCORDINGLY DEPENDING OF THE FUNCTION USED
+# IMPORTANT: CHANGE THE LIST lists AS DESIRED TO ACCEPT LISTS OF STRINGS OR NUMBERS. THE EXERCISE COULD BE ACHIEVED EASIER BUT THE GOAL WAS TO USE CLASS AND OBJECTS TO PERFORM THE OPERAND
+# SCOPE: THE SCOPE OF THE EXERCISE WAS CHANGED A BIT TO ACCEPT A MIXTURE OF STRINGS AND NUMBERS WHILE MAKING SURE THAT THE SCRIPT IS CHECKING FOR DATA TYPE ERRORS SUCH AS ADDING STRINGS TO INTEGERS
+# 
+
+class ArrayWrapper:
+    def __init__(self,list):
+        self.indexed_list = list
+        self.total = 0
+
+    def add(self, indexed_list):
+        total = 0
+        for number in indexed_list:
+            if type(number) == str:
+                continue
+            total += number
+        return total
+
+    def string(self,indexed_list):
+        string1 = str(indexed_list)
+        return string1
+
+list_objects = []
+lists = [[1,2],[2,3]] # CHANGE AS DESIRED
+
+for list in lists:
+    object = ArrayWrapper(list)
+    list_objects.append(object)
+
+total_sum = 0
+for item in list_objects:
+    sum = item.add(item.indexed_list)
+    total_sum += sum
+print(total_sum)
+
+strings = ''
+for item in list_objects:
+    strings += item.string(item.indexed_list)
+print(strings)
+
