@@ -1,0 +1,12 @@
+# READ ME: THIS SCRIPT CHECKS IF A LETTER IS FOUND WITHIN A CERTAIN WORD. TECHNICALLY IT COULD ALSO BE A NUMBER WITH THE STRING DATA TYPE BUT WORDS DON'T CONTAIN NUMERICALS. RETURNS THE INDEX OF THE WORD THAT CONTAINS THE LETTER
+# IMPORTANT: LIST CANNOT CONTAIN NUMERICAL TYPES. ONLY ACCEPTS STRINGS. CHANGE list AND letter AS PER DESIRED
+
+
+list = ['word','dog','tyrant','old']
+letter = 'a'.casefold()
+word_index = []
+
+for index, word in enumerate(list):
+    if letter in word:
+        word_index.append(index)
+print(word_index)
