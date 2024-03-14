@@ -1,0 +1,33 @@
+# READ ME: THIS SCRIPT CHECKS AND AGGREGATES NUMBERS FROM A LIST OF LISTS THAT CONTAINS DIGITS AND STORE THEM IN A DICTIONARY FOR COMPARISSON AND DETERMINING THE HIGHEST BIDDER AND ITS INDEX IN THE LIST
+# SCOPE: THIS EXERCISE USES THE EXAMPLE OF HAVING A LIST OF CLIENTS THAT HAVE MULTIPLE BANK ACCOUNTS. THE GOAL IS TO AGGREGATE THEIR TOTAL WEALTH AND DETERMINE WHAT THE HIGHEST WEALTH IS AND AS A BONUS I ADDED THE INDEX OF THE WEALTHIEST USER
+# IMPORTANT: JUST MODIFY THE LIST accounts TO PLAY AROUND WITH IT. CLIENT NO. 1 MEANS CLIENT AT INDEX 0 IN THE LIST
+
+accounts = [[1,2,3,4,5],[20,1,60],[10,5,8,3],[1],[20,1,60]]
+
+wealthiest_client = []
+wealthiest = 0
+
+list_clients = []
+
+for i in accounts:
+    total_wealth = 0
+    client = {}
+    for j in i:
+        total_wealth += j
+    client['client'] = total_wealth
+    list_clients.append(client)
+
+for index in range(len(list_clients)):
+    wealth = list_clients[index].get("client")
+    if wealth == wealthiest:
+        wealthiest_client.append(index)
+    if wealth > wealthiest:
+        wealthiest = wealth
+        wealthiest_client.clear()
+        wealthiest_client.append(index)
+
+for top_earner in wealthiest_client:
+    if len(wealthiest_client) > 1:
+        print(f"The clients with the highest wealth are client no. {top_earner+1} with a total wealth of ${wealthiest}")
+    else:
+        print(f"The client with the highest wealth is client no. {top_earner+1} with a total wealth of ${wealthiest}")
