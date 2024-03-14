@@ -1,0 +1,7 @@
+# READ ME: JUST A SIMPLE CONCATENATION OF TWO IDENTICAL LISTS 
+# IMPORTANT: CHANGE LIST n AS PER DESIRED
+
+n = [1,2,3]
+
+concat_list = n + n
+print(concat_list)
