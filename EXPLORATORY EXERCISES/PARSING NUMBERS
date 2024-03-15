@@ -1,0 +1,16 @@
+# READ ME: THIS SCRIPT PARSES NUMERICS FROM A STRING AND TURN IT INTO AN INTEGER
+
+
+s = '123ABC00tw2wa'
+
+list_string = list(s)
+new_string = ''
+for character in list_string:
+    if character.isnumeric():
+        new_string += character
+    else:
+        continue
+
+converted_string = int(new_string)
+print(converted_string)
+print(type(converted_string))
