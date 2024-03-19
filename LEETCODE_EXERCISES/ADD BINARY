@@ -1,0 +1,47 @@
+# READ ME: CONVERTS BINARY NUMBERS INTO THEIR RESPECTIVE VALUE AND ADDS THEM TOGETHER. IT USES A FUNCTION FOR THE CONVERSION AND STORES THE VALUES WITHIN OBJECTS
+# IMPORTANT: THE NUMBER HAS TO BE BINARY OTHERWISE IT WON'T ADD IT AND WILL RETURN A MESSAGE STATING THAT IT HAS NOT BEEN ADDED TO THE FINAL TOTAL NUMBER
+# SCOPE: I EXTENEDED THE SCOPE OF THE EXERCISE BY ADDING THE FUNCTION TO INPUT ANY NUMBER OF NUMBERS. NUMBERS CAN BE DUPLICATES AS I USED OBJECTS TO STORE THE BINARY NUMBER ALONG WITH ITS ASSOCIATED VALUE INSTEAD OF DICTIONARIES
+
+def binary_value(number):
+    n = 0
+    length = len(str(number))
+    for power in range(length):
+        if str(number)[-power-1] == '1':
+            value = 2**power
+            n += value
+
+        elif str(number)[-power-1] == '0':
+            pass
+
+        else:
+            n= 'Null'
+            break
+    return(n)
+
+class NumberValue:
+    def __init__(self,number,conv_number):
+        self.number = number
+        self.conv_number = conv_number
+
+add_number = True
+list_value = []
+number_to_binary = {}
+while add_number:
+    number = input(f"choose a binary number\n")
+    conv_number = binary_value(number)
+    object = NumberValue(number, conv_number)
+    list_value.append((object))
+    more_numbers = input(f"Y or N\n").upper()
+    if more_numbers == "N":
+        add_number = False
+
+
+add_binary = 0
+for value in list_value:
+    if str(value.conv_number).isnumeric():
+        add_binary += value.conv_number
+    else:
+        print(f"number {value.number} cannot be added since it is not a binary number")
+print(f"Total: {add_binary}")
+
+
