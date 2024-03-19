@@ -1,0 +1,8 @@
+# READ ME: LOOKS FOR THE LAST WORD IN A SENTENCE
+# IMPORTANT: THIS CODE ONLY WORKS GIVEN THAT EACH WORD ARE SPACED APPROPRIATELY
+
+s = "Same three strings "
+removed_spaces = s.strip()
+split_s = removed_spaces.split(' ')
+last_word = split_s[-1]
+print(last_word)
