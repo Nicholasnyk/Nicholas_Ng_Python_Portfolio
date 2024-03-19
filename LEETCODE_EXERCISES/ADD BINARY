@@ -1,4 +1,4 @@
-# READ ME: CONVERTS BINARY NUMBERS INTO THEIR RESPECTIVE VALUE AND ADDS THEM TOGETHER. IT USES A FUNCTION FOR THE CONVERSION AND STORES THE VALUES WITHIN OBJECTS
+# READ ME: CONVERTS BINARY NUMBERS INTO THEIR RESPECTIVE VALUE AND ADDS THEM TOGETHER. IT USES A FUNCTION FOR THE CONVERSION AND STORES THE VALUES WITHIN OBJECTS. RETURNS THE VALUE OF THE BINARY ALONG WITH THE BINARY NUMBER FOR THE VALUE
 # IMPORTANT: THE NUMBER HAS TO BE BINARY OTHERWISE IT WON'T ADD IT AND WILL RETURN A MESSAGE STATING THAT IT HAS NOT BEEN ADDED TO THE FINAL TOTAL NUMBER
 # SCOPE: THE SCOPE OF THE EXERCISE WAS EXTENEDED BY ADDING THE FUNCTION TO INPUT ANY NUMBER OF NUMBERS. NUMBERS CAN BE DUPLICATES AS I USED OBJECTS TO STORE THE BINARY NUMBER ALONG WITH ITS ASSOCIATED VALUE INSTEAD OF DICTIONARIES
 
@@ -16,6 +16,7 @@ def binary_value(number):
         else:
             n= 'Null'
             break
+
     return(n)
 
 class NumberValue:
@@ -37,11 +38,23 @@ while add_number:
 
 
 add_binary = 0
+
 for value in list_value:
     if str(value.conv_number).isnumeric():
         add_binary += value.conv_number
     else:
         print(f"number {value.number} cannot be added since it is not a binary number")
 print(f"Total: {add_binary}")
+iterated_number = add_binary
+s=''
+while iterated_number>0:
+    for power in reversed(range(9)):
+        if 2**power > iterated_number:
+            s += '0'
+            pass
+        else:
+            iterated_number -= 2**power
+            s += '1'
+print(s.lstrip('0'))
 
 
