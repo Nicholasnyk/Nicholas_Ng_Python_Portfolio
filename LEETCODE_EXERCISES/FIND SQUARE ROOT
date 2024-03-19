@@ -1,0 +1,19 @@
+# READ ME: THIS SCRIPT LOOKS FOR THE SQUARE ROOT ROUNDED DOWN
+# IMPORTANT: IF NUMBER IS NOT A PERFECT SQUARE THEN RETURNS VALUE ROUNDED DOWN. EXAMPLE : NUMBER 38 WILL RETURN A SQUARE ROOT VALUE OF 6 
+
+x = 1001
+n = 0
+nsquare = 0
+
+while nsquare <= x:
+    nsquare = n ** 2
+    print(nsquare)
+    if nsquare > x:
+        n -= 1
+        break
+    if nsquare == x:
+        break
+    else:
+        n +=1
+
+print(n)
