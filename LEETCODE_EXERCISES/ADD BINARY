@@ -59,7 +59,9 @@ while iterated_number>0:
             s += '1'
 
 if add_binary == 0:
-    print("Binary equivalent = 0")
+    print(f"Binary equivalent to {add_binary} = 0")
 else:
-    print(f"Binary equivalent = {s.lstrip('0')}")
+    print(f"Binary equivalent to {add_binary} = {s.lstrip('0')}")
+
+
 
